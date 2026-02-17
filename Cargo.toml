@@ -1,0 +1,68 @@
+[workspace]
+resolver = "3"
+members = [
+  "blog-server",
+  "blog-client",
+  "blog-cli",
+  "blog-wasm",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+
+[workspace.dependencies]
+# async/runtime
+tokio = { version = "1.49", features = ["full"] }
+
+# logging/errors
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["fmt", "env-filter"] }
+anyhow = "1"
+thiserror = "2"
+
+# serde/time
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+chrono = { version = "0.4", features = ["serde"] }
+
+# web (axum)
+axum = { version = "0.8.8", features = ["macros"] }
+tower-http = { version = "0.6.8", features = ["cors", "trace"] }
+
+# OpenAPI
+utoipa = { version = "5.4.0", features = ["chrono"] }
+utoipa-axum = "0.2"
+utoipa-swagger-ui = "9.0.2"
+
+# DB/config
+sqlx = { version = "0.8.6", default-features = false, features = [
+  "runtime-tokio-rustls",
+  "postgres",
+  "macros",
+  "migrate",
+  "chrono",
+] }
+dotenvy = "0.15.7"
+
+# auth/crypto
+jsonwebtoken = "10.3.0"
+argon2 = "0.5.3"
+rand = "0.10"
+
+# gRPC/protobuf
+tonic = "0.14.4"
+prost = "0.14.3"
+prost-types = "0.14.3"
+tonic-prost-build = "0.14.4"
+
+# client/cli
+reqwest = { version = "0.13", features = ["json"] }
+clap = { version = "4.5", features = ["derive"] }
+
+# validation
+validator = { version = "0.20.0", features = ["derive"] }
+
+# wasm frontend (Leptos) — сами зависимости лучше держать в blog-wasm,
+# но версию удобно централизовать тут.
+leptos = { version = "0.8.15" }

@@ -1,0 +1,4 @@
+syntax = "proto3";
+package blog;
+
+// TODO: описать Auth (Register/Login) и Posts CRUD + ListPosts

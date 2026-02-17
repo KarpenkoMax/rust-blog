@@ -1,0 +1,12 @@
+/target
+.vscode/*
+*.env
+
+# wasm
+pkg
+**/pkg
+dist
+**/dist
+GIT
+
+!.env.example

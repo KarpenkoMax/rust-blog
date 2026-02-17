@@ -1,0 +1,3 @@
+-- TODO: create users table
+-- id BIGSERIAL PRIMARY KEY
+-- username UNIQUE, email UNIQUE, password_hash, created_at TIMESTAMPTZ

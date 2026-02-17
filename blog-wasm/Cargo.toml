@@ -1,0 +1,40 @@
+[package]
+name = "blog-wasm"
+version.workspace = true
+edition.workspace = true
+publish = false
+
+[lib]
+name = "blog_wasm"
+path = "src/lib.rs"
+crate-type = ["cdylib"]
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+leptos = { workspace = true, features = ["csr"] }
+
+wasm-bindgen = "0.2"
+wasm-bindgen-futures = "0.4"
+js-sys = "0.3"
+
+# HTTP в браузере
+gloo-net = "0.6"
+
+# localStorage + DOM
+web-sys = { version = "0.3", features = [
+  "Window",
+  "Document",
+  "Element",
+  "HtmlElement",
+  "Headers",
+  "Request",
+  "RequestInit",
+  "Response",
+  "Storage",
+  "console",
+] }
+
+serde = { workspace = true }
+serde_json = { workspace = true }
+serde-wasm-bindgen = "0.6"
+
+console_error_panic_hook = "0.1"

@@ -1,0 +1,4 @@
+-- TODO: create posts table
+-- id BIGSERIAL PRIMARY KEY
+-- title, content, author_id BIGINT FK users(id) ON DELETE CASCADE
+-- created_at, updated_at TIMESTAMPTZ
