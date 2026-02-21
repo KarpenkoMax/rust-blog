@@ -1,4 +1,9 @@
--- TODO: create posts table
--- id BIGSERIAL PRIMARY KEY
--- title, content, author_id BIGINT FK users(id) ON DELETE CASCADE
--- created_at, updated_at TIMESTAMPTZ
+
+CREATE TABLE IF NOT EXISTS posts (
+    id BIGSERIAL PRIMARY KEY,
+    title VARCHAR(255),
+    content TEXT NOT NULL,
+    author_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+);
