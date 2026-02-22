@@ -14,6 +14,7 @@ edition = "2024"
 [workspace.dependencies]
 # async/runtime
 tokio = { version = "1.49", features = ["full"] }
+async-trait = "0.1"
 
 # logging/errors
 tracing = "0.1"
