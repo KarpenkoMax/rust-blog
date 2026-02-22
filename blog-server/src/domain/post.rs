@@ -20,10 +20,11 @@ pub(crate) struct CreatePostRequest {
 }
 
 impl CreatePostRequest {
-    pub(crate) fn validate(&self) -> Result<(), DomainError> {
-        normalize_title(&self.title)?;
-        normalize_content(&self.content)?;
-        Ok(())
+    pub(crate) fn validate(self) -> Result<Self, DomainError> {
+        Ok(Self {
+            title: normalize_title(&self.title)?,
+            content: normalize_content(&self.content)?,
+        })
     }
 }
 
@@ -34,10 +35,11 @@ pub(crate) struct UpdatePostRequest {
 }
 
 impl UpdatePostRequest {
-    pub(crate) fn validate(&self) -> Result<(), DomainError> {
-        normalize_title(&self.title)?;
-        normalize_content(&self.content)?;
-        Ok(())
+    pub(crate) fn validate(self) -> Result<Self, DomainError> {
+        Ok(Self {
+            title: normalize_title(&self.title)?,
+            content: normalize_content(&self.content)?,
+        })
     }
 }
 
@@ -131,6 +133,18 @@ mod tests {
 
         let err = req.validate().expect_err("content must be rejected");
         assert_validation_field(err, "content");
+    }
+
+    #[test]
+    fn create_post_request_validate_normalizes_fields() {
+        let req = CreatePostRequest {
+            title: "  title  ".to_string(),
+            content: "  content  ".to_string(),
+        };
+
+        let validated = req.validate().expect("must validate");
+        assert_eq!(validated.title, "title");
+        assert_eq!(validated.content, "content");
     }
 
     #[test]

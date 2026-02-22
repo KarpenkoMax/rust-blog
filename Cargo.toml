@@ -47,7 +47,7 @@ sqlx = { version = "0.8.6", default-features = false, features = [
 dotenvy = "0.15.7"
 
 # auth/crypto
-jsonwebtoken = "10.3.0"
+jsonwebtoken = { version = "10.3.0", features = ["rust_crypto"] }
 argon2 = "0.5.3"
 rand = "0.10"
 

@@ -12,9 +12,9 @@ pub(crate) struct RegisterRequest {
 }
 
 impl RegisterRequest {
-    pub(crate) fn validate(&self) -> Result<(), DomainError> {
-        normalize_register_username(&self.username)?;
-        normalize_email(&self.email)?;
+    pub(crate) fn validate(self) -> Result<Self, DomainError> {
+        let username = normalize_register_username(&self.username)?;
+        let email = normalize_email(&self.email)?;
         let password_len = self.password.chars().count();
         if password_len < 8 || password_len > 128 {
             return Err(DomainError::Validation {
@@ -22,7 +22,11 @@ impl RegisterRequest {
                 message: "must be 8..128 chars",
             });
         }
-        Ok(())
+        Ok(Self {
+            username,
+            email,
+            password: self.password,
+        })
     }
 }
 
@@ -33,7 +37,7 @@ pub(crate) struct LoginRequest {
 }
 
 impl LoginRequest {
-    pub(crate) fn validate(&self) -> Result<(), DomainError> {
+    pub(crate) fn validate(self) -> Result<Self, DomainError> {
         let username = self.username.trim();
         if username.is_empty() || username.len() > 64 {
             return Err(DomainError::Validation {
@@ -48,7 +52,10 @@ impl LoginRequest {
                 message: "must not be empty",
             });
         }
-        Ok(())
+        Ok(Self {
+            username: username.to_string(),
+            password: self.password,
+        })
     }
 }
 
@@ -144,6 +151,8 @@ mod tests {
             email: "test@example.com".to_string(),
             password: "very-secure-password".to_string(),
         };
-        assert!(ok.validate().is_ok());
+        let validated = ok.validate().expect("must be valid");
+        assert_eq!(validated.username, "valid_user");
+        assert_eq!(validated.email, "test@example.com");
     }
 }

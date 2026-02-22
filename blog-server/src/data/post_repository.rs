@@ -26,7 +26,12 @@ pub(crate) struct Pagination {
 pub(crate) trait PostRepository: Send + Sync {
     async fn create_post(&self, input: NewPost) -> Result<Post, DomainError>;
     async fn get_post(&self, id: i64) -> Result<Option<Post>, DomainError>;
-    async fn update_post(&self, id: i64, patch: PostPatch) -> Result<Option<Post>, DomainError>;
+    async fn update_post_owned(
+        &self,
+        post_id: i64,
+        owner_id: i64,
+        patch: PostPatch,
+    ) -> Result<Option<Post>, DomainError>;
     async fn delete_post(&self, id: i64) -> Result<bool, DomainError>;
     async fn list_posts(&self, pagination: Pagination) -> Result<Vec<Post>, DomainError>;
     async fn total_posts(&self) -> Result<i64, DomainError>;
