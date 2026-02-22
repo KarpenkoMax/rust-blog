@@ -35,7 +35,9 @@ impl<R: PostRepository> BlogService<R> {
     }
 
     pub(crate) async fn get_post(&self, id: i64) -> Result<Post, DomainError> {
-        self.repo.get_post(id).await?
+        self.repo
+            .get_post(id)
+            .await?
             .ok_or(DomainError::NotFound(format!("post id: {id}").into()))
     }
 
@@ -46,8 +48,13 @@ impl<R: PostRepository> BlogService<R> {
         req: UpdatePostRequest,
     ) -> Result<Post, DomainError> {
         let req = req.validate()?;
-        let patch = PostPatch { title: req.title, content: req.content };
-        self.repo.update_post_owned(post_id, actor_user_id, patch).await?
+        let patch = PostPatch {
+            title: req.title,
+            content: req.content,
+        };
+        self.repo
+            .update_post_owned(post_id, actor_user_id, patch)
+            .await?
             .ok_or(DomainError::NotFound(format!("post id: {post_id}").into()))
     }
 
@@ -56,14 +63,16 @@ impl<R: PostRepository> BlogService<R> {
         actor_user_id: i64,
         post_id: i64,
     ) -> Result<(), DomainError> {
-
-        let original_post = self.repo.get_post(post_id).await?
+        let original_post = self
+            .repo
+            .get_post(post_id)
+            .await?
             .ok_or(DomainError::NotFound(format!("post id: {post_id}").into()))?;
 
         if original_post.author_id != actor_user_id {
             return Err(DomainError::Forbidden);
         }
-        
+
         let deleted = self.repo.delete_post(post_id).await?;
         if !deleted {
             return Err(DomainError::NotFound(format!("post id: {post_id}")));
@@ -80,7 +89,12 @@ impl<R: PostRepository> BlogService<R> {
         let posts = self.repo.list_posts(pagination).await?;
         let total = self.repo.total_posts().await?;
 
-        Ok(ListPostsResult { posts, page, page_size, total })
+        Ok(ListPostsResult {
+            posts,
+            page,
+            page_size,
+            total,
+        })
     }
 }
 
@@ -128,7 +142,12 @@ mod tests {
                 .created_input
                 .lock()
                 .expect("created_input mutex poisoned") = Some(input.clone());
-            Ok(sample_post(1, &input.title, &input.content, input.author_id))
+            Ok(sample_post(
+                1,
+                &input.title,
+                &input.content,
+                input.author_id,
+            ))
         }
 
         async fn get_post(&self, _id: i64) -> Result<Option<Post>, DomainError> {
@@ -213,7 +232,10 @@ mod tests {
         let repo = FakePostRepo::new();
         let service = BlogService::new(repo);
 
-        let err = service.get_post(42).await.expect_err("post must be missing");
+        let err = service
+            .get_post(42)
+            .await
+            .expect_err("post must be missing");
         assert!(matches!(err, DomainError::NotFound(_)));
     }
 
@@ -258,14 +280,18 @@ mod tests {
             .expect("post_for_get mutex poisoned") = Some(sample_post(7, "title", "body", 99));
 
         let service = BlogService::new(repo);
-        let err = service.delete_post(10, 7).await.expect_err("must be forbidden");
+        let err = service
+            .delete_post(10, 7)
+            .await
+            .expect_err("must be forbidden");
         assert!(matches!(err, DomainError::Forbidden));
     }
 
     #[tokio::test]
     async fn list_posts_returns_posts_and_total() {
         let repo = FakePostRepo::new();
-        *repo.list_result.lock().expect("list_result mutex poisoned") = vec![sample_post(1, "a", "b", 10)];
+        *repo.list_result.lock().expect("list_result mutex poisoned") =
+            vec![sample_post(1, "a", "b", 10)];
         *repo
             .total_result
             .lock()

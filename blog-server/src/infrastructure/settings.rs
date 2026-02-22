@@ -1,4 +1,4 @@
-use anyhow::{anyhow, Context, Result};
+use anyhow::{Context, Result, anyhow};
 
 #[derive(Debug, Clone)]
 pub struct Settings {
@@ -12,8 +12,7 @@ pub struct Settings {
 
 impl Settings {
     pub fn from_env() -> Result<Self> {
-        let database_url =
-            get_required("DATABASE_URL").context("DATABASE_URL is required")?;
+        let database_url = get_required("DATABASE_URL").context("DATABASE_URL is required")?;
         let jwt_secret = get_required("JWT_SECRET").context("JWT_SECRET is required")?;
 
         if jwt_secret.chars().count() < 32 {

@@ -1,5 +1,5 @@
 use chrono::{Duration, Utc};
-use jsonwebtoken::{DecodingKey, EncodingKey, Header, Validation, decode, encode, Algorithm};
+use jsonwebtoken::{Algorithm, DecodingKey, EncodingKey, Header, Validation, decode, encode};
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
@@ -19,7 +19,7 @@ pub(crate) struct Claims {
     pub(crate) exp: i64,
 }
 
-pub(crate) struct  JwtService {
+pub(crate) struct JwtService {
     pub(crate) secret: String,
     pub(crate) ttl_seconds: i64,
 }
@@ -34,13 +34,16 @@ impl JwtService {
             Self::DEFAULT_TTL_SECONDS
         };
 
-        JwtService { secret: secret.into(), ttl_seconds }
+        JwtService {
+            secret: secret.into(),
+            ttl_seconds,
+        }
     }
 
     pub(crate) fn generate_token(&self, user_id: i64, username: &str) -> Result<String, JwtError> {
         let exp = (Utc::now() + Duration::seconds(self.ttl_seconds)).timestamp();
 
-        let claims = Claims{
+        let claims = Claims {
             user_id,
             username: username.into(),
             exp,
@@ -49,12 +52,12 @@ impl JwtService {
         encode(
             &Header::new(Algorithm::HS256),
             &claims,
-            &EncodingKey::from_secret(self.secret.as_bytes())
-        ).map_err(|e| JwtError::Encode(e))
+            &EncodingKey::from_secret(self.secret.as_bytes()),
+        )
+        .map_err(|e| JwtError::Encode(e))
     }
 
     pub(crate) fn verify_token(&self, token: &str) -> Result<Claims, JwtError> {
-
         let mut validation = Validation::new(Algorithm::HS256);
         validation.validate_exp = true;
         validation.leeway = 10;
@@ -62,8 +65,9 @@ impl JwtService {
         let token_data = decode::<Claims>(
             token,
             &DecodingKey::from_secret(self.secret.as_bytes()),
-            &validation
-        ).map_err(|e| JwtError::Decode(e))?;
+            &validation,
+        )
+        .map_err(|e| JwtError::Decode(e))?;
 
         Ok(token_data.claims)
     }

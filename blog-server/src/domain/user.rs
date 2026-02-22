@@ -116,7 +116,7 @@ fn normalize_email(email: &str) -> Result<String, DomainError> {
 
 #[cfg(test)]
 mod tests {
-    use super::{normalize_email, normalize_register_username, RegisterRequest, User};
+    use super::{RegisterRequest, User, normalize_email, normalize_register_username};
     use chrono::Utc;
 
     #[test]

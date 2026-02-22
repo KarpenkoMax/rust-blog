@@ -1,0 +1,3 @@
+
+ALTER TABLE posts
+    ALTER COLUMN title SET NOT NULL;

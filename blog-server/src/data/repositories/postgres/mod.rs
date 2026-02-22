@@ -1,3 +1,2 @@
 pub(crate) mod post_repository;
-pub(crate) mod repositories;
 pub(crate) mod user_repository;

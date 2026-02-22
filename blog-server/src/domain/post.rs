@@ -164,8 +164,7 @@ mod tests {
     #[test]
     fn post_new_rejects_non_positive_author_id() {
         let now = Utc::now();
-        let err =
-            Post::new(1, "Title", "Content", 0, now, now).expect_err("author_id must be > 0");
+        let err = Post::new(1, "Title", "Content", 0, now, now).expect_err("author_id must be > 0");
         assert_validation_field(err, "author_id");
     }
 

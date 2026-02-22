@@ -1,5 +1,5 @@
-use anyhow::{anyhow, Result};
-use tracing_subscriber::{fmt, EnvFilter};
+use anyhow::{Result, anyhow};
+use tracing_subscriber::{EnvFilter, fmt};
 
 pub fn init_logging(default_level: &str) -> Result<()> {
     let filter = EnvFilter::try_from_default_env()

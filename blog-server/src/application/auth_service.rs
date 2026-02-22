@@ -1,6 +1,9 @@
 use argon2::{
-    password_hash::{Error as PasswordHashError, PasswordHash, PasswordHasher, PasswordVerifier, SaltString, rand_core::OsRng},
-    Argon2, Algorithm, Version, Params,
+    Algorithm, Argon2, Params, Version,
+    password_hash::{
+        Error as PasswordHashError, PasswordHash, PasswordHasher, PasswordVerifier, SaltString,
+        rand_core::OsRng,
+    },
 };
 
 use crate::data::user_repository::{NewUser, UserRepository};
@@ -20,8 +23,7 @@ pub(crate) struct AuthService<R: UserRepository> {
 }
 
 impl<R: UserRepository> AuthService<R> {
-    const DUMMY_PASSWORD_HASH: &'static str =
-        "$argon2id$v=19$m=19456,t=2,p=1$MDEyMzQ1Njc4OWFiY2RlZg$gwN6hT1sNdk9kI95f7n2Gl3fL0qRmBf2Ffkj2r90/0M";
+    const DUMMY_PASSWORD_HASH: &'static str = "$argon2id$v=19$m=19456,t=2,p=1$MDEyMzQ1Njc4OWFiY2RlZg$gwN6hT1sNdk9kI95f7n2Gl3fL0qRmBf2Ffkj2r90/0M";
 
     pub(crate) fn new(repo: R, jwt: JwtService) -> Self {
         Self { repo, jwt }
@@ -35,13 +37,12 @@ impl<R: UserRepository> AuthService<R> {
         let new_user = Self::into_new_user(req, password_hash);
         let user = self.repo.create_user(new_user).await?;
 
-        let access_token = self.jwt.generate_token(user.id, &user.username)
+        let access_token = self
+            .jwt
+            .generate_token(user.id, &user.username)
             .map_err(|err| DomainError::Unexpected(err.to_string()))?;
 
-        Ok(AuthResult {
-            user,
-            access_token,
-        })
+        Ok(AuthResult { user, access_token })
     }
 
     pub(crate) async fn login(&self, req: LoginRequest) -> Result<AuthResult, DomainError> {
@@ -62,7 +63,9 @@ impl<R: UserRepository> AuthService<R> {
 
         self.verify_password(&req.password, &user_creds.password_hash)?;
 
-        let access_token = self.jwt.generate_token(user_creds.user.id, &user_creds.user.username)
+        let access_token = self
+            .jwt
+            .generate_token(user_creds.user.id, &user_creds.user.username)
             .map_err(|err| DomainError::Unexpected(err.to_string()))?;
 
         Ok(AuthResult {
@@ -73,7 +76,8 @@ impl<R: UserRepository> AuthService<R> {
 
     pub(crate) fn hash_password(&self, raw_password: &str) -> Result<String, DomainError> {
         let salt = SaltString::generate(&mut OsRng);
-        let password_hash = Self::argon2()?.hash_password(raw_password.as_bytes(), &salt)
+        let password_hash = Self::argon2()?
+            .hash_password(raw_password.as_bytes(), &salt)
             .map_err(|err| DomainError::Unexpected(err.to_string()))?;
         Ok(password_hash.to_string())
     }
@@ -95,10 +99,7 @@ impl<R: UserRepository> AuthService<R> {
         Ok(())
     }
 
-    pub(crate) fn into_new_user(
-        req: RegisterRequest,
-        password_hash: String,
-    ) -> NewUser {
+    pub(crate) fn into_new_user(req: RegisterRequest, password_hash: String) -> NewUser {
         NewUser {
             username: req.username,
             email: req.email,
@@ -167,7 +168,10 @@ mod tests {
             Ok(self.create_user_out.clone())
         }
 
-        async fn find_by_username(&self, _username: &str) -> Result<Option<UserCredentials>, DomainError> {
+        async fn find_by_username(
+            &self,
+            _username: &str,
+        ) -> Result<Option<UserCredentials>, DomainError> {
             Ok(self
                 .login_credentials
                 .lock()
@@ -175,7 +179,10 @@ mod tests {
                 .clone())
         }
 
-        async fn find_by_email(&self, _email: &str) -> Result<Option<UserCredentials>, DomainError> {
+        async fn find_by_email(
+            &self,
+            _email: &str,
+        ) -> Result<Option<UserCredentials>, DomainError> {
             Ok(None)
         }
     }
@@ -196,7 +203,9 @@ mod tests {
         assert_eq!(result.user.username, "valid_user");
         assert!(!result.access_token.is_empty());
 
-        let created = repo.take_created_input().expect("create_user must be called");
+        let created = repo
+            .take_created_input()
+            .expect("create_user must be called");
         assert_eq!(created.username, "valid_user");
         assert_eq!(created.email, "valid@example.com");
         assert!(!created.password_hash.is_empty());
