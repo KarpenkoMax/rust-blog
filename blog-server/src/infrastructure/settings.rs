@@ -4,6 +4,7 @@ use anyhow::{Context, Result, anyhow};
 pub struct Settings {
     pub database_url: String,
     pub jwt_secret: String,
+    pub jwt_ttl_seconds: i64,
     pub http_addr: String,
     pub grpc_addr: String,
     pub cors_origins: Vec<String>,
@@ -14,6 +15,10 @@ impl Settings {
     pub fn from_env() -> Result<Self> {
         let database_url = get_required("DATABASE_URL").context("DATABASE_URL is required")?;
         let jwt_secret = get_required("JWT_SECRET").context("JWT_SECRET is required")?;
+        let jwt_ttl_seconds: i64 = std::env::var("JWT_TTL_SECONDS")
+            .unwrap_or_else(|_| "3600".to_string())
+            .parse()
+            .context("Failed to parse JWT_TTL_SECONDS, expecting integer")?;
 
         if jwt_secret.chars().count() < 32 {
             return Err(anyhow!("JWT_SECRET must be at least 32 characters"));
@@ -32,6 +37,7 @@ impl Settings {
         Ok(Self {
             database_url,
             jwt_secret,
+            jwt_ttl_seconds,
             http_addr,
             grpc_addr,
             cors_origins,
