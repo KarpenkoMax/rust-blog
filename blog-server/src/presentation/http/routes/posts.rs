@@ -3,10 +3,10 @@ use axum::middleware;
 use axum::routing::{get, post, put};
 
 use crate::presentation::AppState;
-use crate::presentation::handlers::posts::{
+use crate::presentation::http::handlers::posts::{
     create_post, delete_post, get_post, list_posts, update_post,
 };
-use crate::presentation::middleware::auth::jwt_auth_middleware;
+use crate::presentation::http::middleware::auth::jwt_auth_middleware;
 
 pub(crate) fn router(state: AppState) -> Router<AppState> {
     let public = Router::new()

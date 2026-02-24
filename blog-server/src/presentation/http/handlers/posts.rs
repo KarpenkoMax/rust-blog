@@ -10,8 +10,8 @@ use validator::Validate;
 
 use crate::domain::post::{Post, UpdatePostRequest};
 use crate::presentation::AppState;
-use crate::presentation::app_error::AppResult;
-use crate::presentation::middleware::auth::AuthenticatedUser;
+use crate::presentation::http::app_error::AppResult;
+use crate::presentation::http::middleware::auth::AuthenticatedUser;
 use crate::{application::blog_service::ListPostsResult, domain::post::CreatePostRequest};
 
 #[derive(Debug, Deserialize, Validate, ToSchema)]

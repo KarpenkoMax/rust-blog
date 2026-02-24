@@ -6,7 +6,7 @@ use axum::{
 };
 
 use crate::presentation::AppState;
-use crate::presentation::app_error::AppError;
+use crate::presentation::http::app_error::AppError;
 
 #[derive(Debug, Clone)]
 pub(crate) struct AuthenticatedUser {

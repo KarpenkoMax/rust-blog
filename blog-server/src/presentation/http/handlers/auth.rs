@@ -6,7 +6,7 @@ use validator::Validate;
 
 use crate::domain::user::{LoginRequest, RegisterRequest, User};
 use crate::presentation::AppState;
-use crate::presentation::app_error::AppResult;
+use crate::presentation::http::app_error::AppResult;
 
 #[derive(Debug, Deserialize, Validate, ToSchema)]
 pub(crate) struct RegisterDto {

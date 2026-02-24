@@ -17,7 +17,7 @@ use infrastructure::jwt::JwtService;
 use infrastructure::logging::init_logging;
 use infrastructure::settings::Settings;
 use presentation::AppState;
-use server::run_http;
+use server::{run_grpc, run_http};
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -43,6 +43,9 @@ async fn main() -> Result<()> {
 
     let state = AppState::new(pool, auth_service, blog_service, jwt);
 
-    run_http(&settings, state).await?;
+    tokio::try_join!(
+        run_http(&settings, state.clone()),
+        run_grpc(&settings, state)
+    )?;
     Ok(())
 }

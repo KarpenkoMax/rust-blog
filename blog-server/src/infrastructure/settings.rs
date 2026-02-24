@@ -9,6 +9,13 @@ pub struct Settings {
     pub grpc_addr: String,
     pub cors_origins: Vec<String>,
     pub log_level: String,
+    pub http_request_body_limit_bytes: usize,
+    pub http_concurrency_limit: usize,
+    pub http_request_timeout_secs: u64,
+    pub grpc_concurrency_limit: usize,
+    pub grpc_request_timeout_secs: u64,
+    pub grpc_max_decoding_message_size_bytes: usize,
+    pub grpc_max_encoding_message_size_bytes: usize,
 }
 
 impl Settings {
@@ -33,6 +40,16 @@ impl Settings {
         let log_level = std::env::var("LOG_LEVEL")
             .or_else(|_| std::env::var("RUST_LOG"))
             .unwrap_or_else(|_| "info".to_string());
+        let http_request_body_limit_bytes =
+            parse_usize_env("HTTP_REQUEST_BODY_LIMIT_BYTES", 1024 * 1024)?;
+        let http_concurrency_limit = parse_usize_env("HTTP_CONCURRENCY_LIMIT", 256)?;
+        let http_request_timeout_secs = parse_u64_env("HTTP_REQUEST_TIMEOUT_SECS", 10)?;
+        let grpc_concurrency_limit = parse_usize_env("GRPC_CONCURRENCY_LIMIT", 256)?;
+        let grpc_request_timeout_secs = parse_u64_env("GRPC_REQUEST_TIMEOUT_SECS", 10)?;
+        let grpc_max_decoding_message_size_bytes =
+            parse_usize_env("GRPC_MAX_DECODING_MESSAGE_SIZE_BYTES", 4 * 1024 * 1024)?;
+        let grpc_max_encoding_message_size_bytes =
+            parse_usize_env("GRPC_MAX_ENCODING_MESSAGE_SIZE_BYTES", 4 * 1024 * 1024)?;
 
         Ok(Self {
             database_url,
@@ -42,6 +59,13 @@ impl Settings {
             grpc_addr,
             cors_origins,
             log_level,
+            http_request_body_limit_bytes,
+            http_concurrency_limit,
+            http_request_timeout_secs,
+            grpc_concurrency_limit,
+            grpc_request_timeout_secs,
+            grpc_max_decoding_message_size_bytes,
+            grpc_max_encoding_message_size_bytes,
         })
     }
 }
@@ -61,4 +85,28 @@ fn parse_cors_origins(raw: String) -> Vec<String> {
         .filter(|entry| !entry.is_empty())
         .map(str::to_string)
         .collect()
+}
+
+fn parse_usize_env(key: &str, default: usize) -> Result<usize> {
+    let value = std::env::var(key)
+        .unwrap_or_else(|_| default.to_string())
+        .parse::<usize>()
+        .with_context(|| format!("Failed to parse {key}, expecting positive integer"))?;
+
+    if value == 0 {
+        return Err(anyhow!("{key} must be > 0"));
+    }
+    Ok(value)
+}
+
+fn parse_u64_env(key: &str, default: u64) -> Result<u64> {
+    let value = std::env::var(key)
+        .unwrap_or_else(|_| default.to_string())
+        .parse::<u64>()
+        .with_context(|| format!("Failed to parse {key}, expecting positive integer"))?;
+
+    if value == 0 {
+        return Err(anyhow!("{key} must be > 0"));
+    }
+    Ok(value)
 }

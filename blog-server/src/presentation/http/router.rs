@@ -1,7 +1,9 @@
 use axum::{Json, Router, routing::get};
 use serde::Serialize;
 
-use super::{AppState, routes};
+use crate::presentation::AppState;
+
+use super::routes;
 
 pub(crate) fn routes(state: AppState) -> Router {
     Router::new()

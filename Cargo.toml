@@ -29,7 +29,8 @@ chrono = { version = "0.4", features = ["serde"] }
 
 # web (axum)
 axum = { version = "0.8.8", features = ["macros"] }
-tower-http = { version = "0.6.8", features = ["cors", "trace"] }
+tower = { version = "0.5.3", features = ["timeout", "limit"] }
+tower-http = { version = "0.6.8", features = ["cors", "trace", "limit"] }
 
 # OpenAPI
 utoipa = { version = "5.4.0", features = ["chrono"] }
@@ -56,6 +57,7 @@ tonic = "0.14.4"
 prost = "0.14.3"
 prost-types = "0.14.3"
 tonic-prost-build = "0.14.4"
+tonic-prost = "0.14.4"
 
 # client/cli
 reqwest = { version = "0.13", features = ["json"] }

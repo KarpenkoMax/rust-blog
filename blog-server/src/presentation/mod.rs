@@ -7,13 +7,8 @@ use crate::data::repositories::postgres::post_repository::PostgresPostRepository
 use crate::data::repositories::postgres::user_repository::PostgresUserRepository;
 use crate::infrastructure::jwt::JwtService;
 
-pub(crate) mod app_error;
-pub(crate) mod grpc_service;
-pub(crate) mod handlers;
-pub(crate) mod http_handlers;
-pub(crate) mod middleware;
-pub(crate) mod openapi;
-pub(crate) mod routes;
+pub(crate) mod grpc;
+pub(crate) mod http;
 
 #[derive(Clone)]
 pub(crate) struct AppState {

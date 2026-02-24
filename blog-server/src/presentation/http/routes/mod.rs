@@ -1,6 +1,6 @@
 use axum::Router;
 
-use super::AppState;
+use crate::presentation::AppState;
 
 pub(crate) mod auth;
 pub(crate) mod posts;
