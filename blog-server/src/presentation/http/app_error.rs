@@ -16,11 +16,11 @@ pub(crate) enum AppError {
     #[error("validation error: {0}")]
     Validation(#[from] ValidationErrors),
 
-    #[error("not found")]
-    NotFound,
+    // #[error("not found")]
+    // NotFound,
 
-    #[error("bad request: {0}")]
-    BadRequest(String),
+    // #[error("bad request: {0}")]
+    // BadRequest(String),
 
     #[error("unauthorized")]
     Unauthorized,
@@ -54,8 +54,8 @@ impl IntoResponse for AppError {
                 (status, msg)
             }
             AppError::Validation(err) => (StatusCode::BAD_REQUEST, err.to_string()),
-            AppError::NotFound => (StatusCode::NOT_FOUND, "not found".to_string()),
-            AppError::BadRequest(msg) => (StatusCode::BAD_REQUEST, msg),
+            // AppError::NotFound => (StatusCode::NOT_FOUND, "not found".to_string()),
+            // AppError::BadRequest(msg) => (StatusCode::BAD_REQUEST, msg),
             AppError::Unauthorized => (StatusCode::UNAUTHORIZED, "unauthorized".to_string()),
             AppError::Internal(_) => (
                 StatusCode::INTERNAL_SERVER_ERROR,

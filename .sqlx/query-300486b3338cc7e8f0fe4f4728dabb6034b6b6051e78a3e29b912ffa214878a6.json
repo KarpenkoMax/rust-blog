@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n            SELECT\n            id,\n            title as \"title!\",\n            content,\n            author_id,\n            created_at,\n            updated_at\n            FROM posts\n            WHERE id = $1\n            ",
+  "query": "\n            SELECT\n                id,\n                title,\n                content,\n                author_id,\n                created_at,\n                updated_at\n            FROM posts\n            ORDER BY created_at DESC, id DESC\n            LIMIT $1\n            OFFSET $2\n            ",
   "describe": {
     "columns": [
       {
@@ -10,7 +10,7 @@
       },
       {
         "ordinal": 1,
-        "name": "title!",
+        "name": "title",
         "type_info": "Varchar"
       },
       {
@@ -36,6 +36,7 @@
     ],
     "parameters": {
       "Left": [
+        "Int8",
         "Int8"
       ]
     },
@@ -48,5 +49,5 @@
       false
     ]
   },
-  "hash": "f16eab080ce8d0a2a76568da44cc7e40c422e0c40a71ae999a937126652f8e62"
+  "hash": "300486b3338cc7e8f0fe4f4728dabb6034b6b6051e78a3e29b912ffa214878a6"
 }

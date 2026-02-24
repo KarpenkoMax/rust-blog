@@ -6,7 +6,7 @@ use crate::infrastructure::jwt::JwtService;
 #[derive(Debug, Clone)]
 pub(crate) struct GrpcAuthContext {
     pub(crate) user_id: i64,
-    pub(crate) username: String,
+    // pub(crate) username: String,
 }
 
 pub(crate) fn authenticate_request(
@@ -20,7 +20,7 @@ pub(crate) fn authenticate_request(
 
     Ok(GrpcAuthContext {
         user_id: claims.user_id,
-        username: claims.username,
+        // username: claims.username,
     })
 }
 

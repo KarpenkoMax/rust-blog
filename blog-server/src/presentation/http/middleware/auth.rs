@@ -11,7 +11,7 @@ use crate::presentation::http::app_error::AppError;
 #[derive(Debug, Clone)]
 pub(crate) struct AuthenticatedUser {
     pub(crate) user_id: i64,
-    pub(crate) username: String,
+    // pub(crate) username: String,
 }
 
 impl<S> FromRequestParts<S> for AuthenticatedUser
@@ -60,7 +60,7 @@ pub(crate) async fn jwt_auth_middleware(
 
     request.extensions_mut().insert(AuthenticatedUser {
         user_id: claims.user_id,
-        username: claims.username,
+        // username: claims.username,
     });
 
     Ok(next.run(request).await)

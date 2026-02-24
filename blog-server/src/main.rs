@@ -41,7 +41,7 @@ async fn main() -> Result<()> {
     ));
     let blog_service = Arc::new(BlogService::new(post_repo));
 
-    let state = AppState::new(pool, auth_service, blog_service, jwt);
+    let state = AppState::new(auth_service, blog_service, jwt);
 
     tokio::try_join!(
         run_http(&settings, state.clone()),
