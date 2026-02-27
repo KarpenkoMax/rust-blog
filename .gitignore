@@ -1,6 +1,7 @@
 /target
 .vscode/*
 *.env
+.blog_token
 
 # wasm
 pkg

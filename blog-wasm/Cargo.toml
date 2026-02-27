@@ -4,11 +4,6 @@ version.workspace = true
 edition.workspace = true
 publish = false
 
-[lib]
-name = "blog_wasm"
-path = "src/lib.rs"
-crate-type = ["cdylib"]
-
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 leptos = { workspace = true, features = ["csr"] }
 

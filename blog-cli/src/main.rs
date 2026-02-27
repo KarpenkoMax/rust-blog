@@ -133,6 +133,7 @@ async fn run() -> Result<()> {
             print_post("Пост", &post);
         }
         Command::Update { id, title, content } => {
+            // Если пользователь не передал --content, сохраняем текущее содержимое поста.
             let content = match content {
                 Some(content) => content,
                 None => client.get_post(id).await.map_err(map_client_error)?.content,
@@ -188,18 +189,21 @@ fn normalize_server(server: String, grpc: bool) -> String {
     }
 }
 
+fn parse_token_content(raw: &str) -> Option<String> {
+    let token = raw.trim().to_string();
+    if token.is_empty() {
+        return None;
+    }
+    Some(token)
+}
+
 fn load_token() -> io::Result<Option<String>> {
     if !Path::new(TOKEN_FILE).exists() {
         return Ok(None);
     }
 
-    let token = fs::read_to_string(TOKEN_FILE)?;
-    let token = token.trim().to_string();
-    if token.is_empty() {
-        return Ok(None);
-    }
-
-    Ok(Some(token))
+    let raw = fs::read_to_string(TOKEN_FILE)?;
+    Ok(parse_token_content(&raw))
 }
 
 fn persist_token(client: &BlogClient) -> io::Result<()> {
@@ -264,5 +268,61 @@ fn print_list(list: &ListPostsResponse) {
             "- [{}] {} (author_id={})",
             post.id, post.title, post.author_id
         );
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn normalize_server_keeps_scheme() {
+        let s = normalize_server("https://example.com:8080".to_string(), false);
+        assert_eq!(s, "https://example.com:8080");
+    }
+
+    #[test]
+    fn normalize_server_adds_http_scheme() {
+        let s = normalize_server("127.0.0.1:50051".to_string(), true);
+        assert_eq!(s, "http://127.0.0.1:50051");
+    }
+
+    #[test]
+    fn resolve_transport_defaults_to_http() {
+        let transport = resolve_transport(false, None);
+        match transport {
+            Transport::Http(url) => assert_eq!(url, DEFAULT_HTTP_SERVER),
+            Transport::Grpc(_) => panic!("expected HTTP transport"),
+        }
+    }
+
+    #[test]
+    fn resolve_transport_uses_grpc_when_flag_enabled() {
+        let transport = resolve_transport(true, None);
+        match transport {
+            Transport::Grpc(url) => assert_eq!(url, DEFAULT_GRPC_SERVER),
+            Transport::Http(_) => panic!("expected gRPC transport"),
+        }
+    }
+
+    #[test]
+    fn resolve_transport_uses_custom_server() {
+        let transport = resolve_transport(false, Some("localhost:9999".to_string()));
+        match transport {
+            Transport::Http(url) => assert_eq!(url, "http://localhost:9999"),
+            Transport::Grpc(_) => panic!("expected HTTP transport"),
+        }
+    }
+
+    #[test]
+    fn parse_token_content_trims_whitespace() {
+        let token = parse_token_content("  abc.def.ghi  ");
+        assert_eq!(token.as_deref(), Some("abc.def.ghi"));
+    }
+
+    #[test]
+    fn parse_token_content_rejects_blank() {
+        let token = parse_token_content("   ");
+        assert!(token.is_none());
     }
 }
