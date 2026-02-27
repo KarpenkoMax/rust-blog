@@ -352,8 +352,8 @@ mod tests {
     #[test]
     fn attach_bearer_token_sets_authorization_metadata() {
         let request = tonic::Request::new(());
-        let request = GrpcClient::attach_bearer_token(request, "token123")
-            .expect("token must be accepted");
+        let request =
+            GrpcClient::attach_bearer_token(request, "token123").expect("token must be accepted");
 
         let auth = request
             .metadata()
@@ -402,13 +402,17 @@ mod tests {
 
     #[test]
     fn grpc_status_mapping_covers_common_business_errors() {
-        let unauth = BlogClientError::from_grpc_status(tonic::Status::new(Code::Unauthenticated, ""));
+        let unauth =
+            BlogClientError::from_grpc_status(tonic::Status::new(Code::Unauthenticated, ""));
         assert!(matches!(unauth, BlogClientError::Unauthorized));
 
         let not_found = BlogClientError::from_grpc_status(tonic::Status::new(Code::NotFound, ""));
         assert!(matches!(not_found, BlogClientError::NotFound));
 
-        let invalid = BlogClientError::from_grpc_status(tonic::Status::new(Code::InvalidArgument, "bad input"));
+        let invalid = BlogClientError::from_grpc_status(tonic::Status::new(
+            Code::InvalidArgument,
+            "bad input",
+        ));
         match invalid {
             BlogClientError::InvalidRequest(msg) => assert_eq!(msg, "bad input"),
             other => panic!("unexpected error: {other:?}"),
