@@ -21,7 +21,6 @@ pub(crate) enum AppError {
 
     // #[error("bad request: {0}")]
     // BadRequest(String),
-
     #[error("unauthorized")]
     Unauthorized,
 

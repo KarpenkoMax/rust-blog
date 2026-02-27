@@ -23,7 +23,7 @@ pub(crate) trait UserRepository: Send + Sync {
         &self,
         username: &str,
     ) -> Result<Option<UserCredentials>, DomainError>;
-    
+
     #[allow(dead_code)]
     async fn find_by_email(&self, email: &str) -> Result<Option<UserCredentials>, DomainError>;
 }
