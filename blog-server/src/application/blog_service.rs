@@ -38,7 +38,7 @@ impl<R: PostRepository> BlogService<R> {
         self.repo
             .get_post(id)
             .await?
-            .ok_or(DomainError::NotFound(format!("post id: {id}").into()))
+            .ok_or(DomainError::NotFound(format!("post id: {id}")))
     }
 
     pub(crate) async fn update_post(
@@ -55,7 +55,7 @@ impl<R: PostRepository> BlogService<R> {
         self.repo
             .update_post_owned(post_id, actor_user_id, patch)
             .await?
-            .ok_or(DomainError::NotFound(format!("post id: {post_id}").into()))
+            .ok_or(DomainError::NotFound(format!("post id: {post_id}")))
     }
 
     pub(crate) async fn delete_post(
@@ -67,7 +67,7 @@ impl<R: PostRepository> BlogService<R> {
             .repo
             .get_post(post_id)
             .await?
-            .ok_or(DomainError::NotFound(format!("post id: {post_id}").into()))?;
+            .ok_or(DomainError::NotFound(format!("post id: {post_id}")))?;
 
         if original_post.author_id != actor_user_id {
             return Err(DomainError::Forbidden);

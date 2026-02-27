@@ -16,7 +16,7 @@ impl RegisterRequest {
         let username = normalize_register_username(&self.username)?;
         let email = normalize_email(&self.email)?;
         let password_len = self.password.chars().count();
-        if password_len < 8 || password_len > 128 {
+        if !(8..=128).contains(&password_len) {
             return Err(DomainError::Validation {
                 field: "password",
                 message: "must be 8..128 chars",

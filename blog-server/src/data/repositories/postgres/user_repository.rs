@@ -121,8 +121,8 @@ impl UserRepository for PostgresUserRepository {
 }
 
 fn map_user_db_error(err: sqlx::Error) -> DomainError {
-    if let sqlx::Error::Database(db_err) = &err {
-        if db_err.code().as_deref() == Some("23505") {
+    if let sqlx::Error::Database(db_err) = &err
+        && db_err.code().as_deref() == Some("23505") {
             let resource = match db_err.constraint() {
                 Some("users_username_key") => "username",
                 Some("users_email_key") => "email",
@@ -130,6 +130,5 @@ fn map_user_db_error(err: sqlx::Error) -> DomainError {
             };
             return DomainError::AlreadyExists(resource.to_string());
         }
-    }
     DomainError::Unexpected(err.to_string())
 }

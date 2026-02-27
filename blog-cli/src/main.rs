@@ -168,7 +168,7 @@ fn resolve_transport(grpc: bool, server: Option<String>) -> Transport {
         DEFAULT_HTTP_SERVER
     };
     let raw = server.unwrap_or_else(|| default.to_string());
-    let normalized = normalize_server(raw, grpc);
+    let normalized = normalize_server(raw);
 
     if grpc {
         Transport::Grpc(normalized)
@@ -177,16 +177,12 @@ fn resolve_transport(grpc: bool, server: Option<String>) -> Transport {
     }
 }
 
-fn normalize_server(server: String, grpc: bool) -> String {
+fn normalize_server(server: String) -> String {
     if server.starts_with("http://") || server.starts_with("https://") {
         return server;
     }
 
-    if grpc {
-        format!("http://{server}")
-    } else {
-        format!("http://{server}")
-    }
+    format!("http://{server}")
 }
 
 fn parse_token_content(raw: &str) -> Option<String> {
@@ -277,13 +273,13 @@ mod tests {
 
     #[test]
     fn normalize_server_keeps_scheme() {
-        let s = normalize_server("https://example.com:8080".to_string(), false);
+        let s = normalize_server("https://example.com:8080".to_string());
         assert_eq!(s, "https://example.com:8080");
     }
 
     #[test]
     fn normalize_server_adds_http_scheme() {
-        let s = normalize_server("127.0.0.1:50051".to_string(), true);
+        let s = normalize_server("127.0.0.1:50051".to_string());
         assert_eq!(s, "http://127.0.0.1:50051");
     }
 

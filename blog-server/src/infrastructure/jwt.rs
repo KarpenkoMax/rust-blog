@@ -54,7 +54,7 @@ impl JwtService {
             &claims,
             &EncodingKey::from_secret(self.secret.as_bytes()),
         )
-        .map_err(|e| JwtError::Encode(e))
+        .map_err(JwtError::Encode)
     }
 
     pub(crate) fn verify_token(&self, token: &str) -> Result<Claims, JwtError> {
@@ -67,7 +67,7 @@ impl JwtService {
             &DecodingKey::from_secret(self.secret.as_bytes()),
             &validation,
         )
-        .map_err(|e| JwtError::Decode(e))?;
+        .map_err(JwtError::Decode)?;
 
         Ok(token_data.claims)
     }
