@@ -210,21 +210,10 @@ impl GrpcClient {
         Ok(())
     }
 
-    /// Возвращает список постов с клиентской пагинацией `limit/offset`.
-    ///
-    /// gRPC API сервера принимает пагинацию в виде `page/page_size`,
-    /// поэтому внутри выполняется преобразование:
-    /// - `page_size = max(limit, 1)`
-    /// - `page = (offset / page_size) + 1`
-    ///
-    /// Примеры:
-    /// - `limit=20, offset=0`  -> `page=1, page_size=20`
-    /// - `limit=20, offset=40` -> `page=3, page_size=20`
+    /// Возвращает список постов с пагинацией `limit/offset`.
     pub async fn list_posts(&self, limit: u32, offset: u32) -> BlogClientResult<ListPostsResponse> {
         let mut client = self.connect().await?;
-        let page_size = limit.max(1);
-        let page = (offset / page_size) + 1;
-        let request = tonic::Request::new(pb::ListPostsRequest { page, page_size });
+        let request = tonic::Request::new(pb::ListPostsRequest { limit, offset });
 
         let response = client
             .list_posts(request)
@@ -311,8 +300,8 @@ impl GrpcClient {
 
         Ok(ListPostsResponseDto {
             posts,
-            limit: proto.page_size,
-            offset: proto.page.saturating_sub(1).saturating_mul(proto.page_size),
+            limit: proto.limit,
+            offset: proto.offset,
             total: proto.total,
         })
     }
@@ -386,11 +375,11 @@ mod tests {
     }
 
     #[test]
-    fn map_list_posts_response_maps_page_to_offset() {
+    fn map_list_posts_response_keeps_limit_and_offset() {
         let proto = pb::ListPostsResponse {
             posts: vec![],
-            page: 3,
-            page_size: 20,
+            limit: 20,
+            offset: 40,
             total: 7,
         };
 

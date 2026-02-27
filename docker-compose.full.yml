@@ -1,0 +1,47 @@
+services:
+  postgres:
+    image: postgres:18-alpine
+    container_name: blog-postgres-full
+    env_file:
+      - ./.env
+    ports:
+      - "${COMPOSE_POSTGRES_PORT}:5432"
+    volumes:
+      - pgdata_full:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+
+  blog-server:
+    build:
+      context: .
+      dockerfile: blog-server/Dockerfile
+    container_name: blog-server-full
+    depends_on:
+      postgres:
+        condition: service_healthy
+    env_file:
+      - ./.env
+    ports:
+      - "${COMPOSE_HTTP_PORT}:8080"
+      - "${COMPOSE_GRPC_PORT}:50051"
+    restart: unless-stopped
+
+  blog-wasm:
+    build:
+      context: .
+      dockerfile: blog-wasm/Dockerfile
+      args:
+        WASM_API_BASE_URL: ${WASM_API_BASE_URL}
+    container_name: blog-wasm-full
+    depends_on:
+      - blog-server
+    ports:
+      - "${COMPOSE_WASM_PORT}:80"
+    restart: unless-stopped
+
+volumes:
+  pgdata_full:

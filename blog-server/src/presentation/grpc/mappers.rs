@@ -74,10 +74,14 @@ pub(crate) fn to_proto_post(post: DomainPost) -> Post {
 }
 
 pub(crate) fn to_proto_list_posts_response(result: ListPostsResult) -> ListPostsResponse {
+    let offset = result
+        .page
+        .saturating_sub(1)
+        .saturating_mul(result.page_size);
     ListPostsResponse {
         posts: result.posts.into_iter().map(to_proto_post).collect(),
-        page: result.page,
-        page_size: result.page_size,
+        limit: result.page_size,
+        offset,
         total: result.total.max(0) as u64,
     }
 }

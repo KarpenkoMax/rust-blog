@@ -1,11 +1,11 @@
 #[cfg(target_arch = "wasm32")]
-use leptos::prelude::*;
-#[cfg(target_arch = "wasm32")]
 use crate::api;
 #[cfg(target_arch = "wasm32")]
 use crate::state::AppState;
 #[cfg(target_arch = "wasm32")]
 use crate::storage;
+#[cfg(target_arch = "wasm32")]
+use leptos::prelude::*;
 
 use crate::components::auth_panel::AuthPanel;
 use crate::components::posts_panel::PostsPanel;
@@ -84,7 +84,7 @@ pub fn App() -> impl IntoView {
                         {error_text}
                     </div>
                 </Show>
-                
+
                 <PostsPanel state=state.clone() on_refresh=on_refresh />
 
             </section>

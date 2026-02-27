@@ -141,27 +141,24 @@ impl BlogService for GrpcBlogService {
         &self,
         request: Request<ListPostsRequest>,
     ) -> Result<Response<ListPostsResponse>, Status> {
-        const DEFAULT_PAGE: u32 = 1;
-        const DEFAULT_PAGE_SIZE: u32 = 20;
-        const MAX_PAGE_SIZE: u32 = 100;
+        const DEFAULT_LIMIT: u32 = 20;
+        const MAX_LIMIT: u32 = 100;
 
         let input = request.into_inner();
-        let page = if input.page == 0 {
-            DEFAULT_PAGE
+        let limit = if input.limit == 0 {
+            DEFAULT_LIMIT
         } else {
-            input.page
+            input.limit
         };
-        let page_size = if input.page_size == 0 {
-            DEFAULT_PAGE_SIZE
-        } else {
-            input.page_size
-        };
+        let offset = input.offset;
 
-        if page_size > MAX_PAGE_SIZE {
+        if limit > MAX_LIMIT {
             return Err(Status::invalid_argument(format!(
-                "page_size must be in 1..={MAX_PAGE_SIZE}"
+                "limit must be in 1..={MAX_LIMIT}"
             )));
         }
+        let page = (offset / limit) + 1;
+        let page_size = limit;
 
         let result = self
             .state

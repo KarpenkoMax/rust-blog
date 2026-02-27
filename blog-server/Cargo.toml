@@ -38,7 +38,7 @@ validator = { workspace = true }
 # OpenAPI
 utoipa = { workspace = true }
 utoipa-axum = { workspace = true }
-utoipa-swagger-ui = { workspace = true, features = ["axum"] }
+utoipa-swagger-ui = { workspace = true, features = ["axum", "vendored"] }
 
 # gRPC / protobuf runtime
 tonic = { workspace = true }

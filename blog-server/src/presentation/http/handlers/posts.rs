@@ -32,10 +32,9 @@ pub(crate) struct UpdatePostDto {
 
 #[derive(Debug, Deserialize, Validate, ToSchema)]
 pub(crate) struct PaginationQuery {
-    #[validate(range(min = 1))]
-    pub(crate) page: Option<u32>,
     #[validate(range(min = 1, max = 100))]
-    pub(crate) page_size: Option<u32>,
+    pub(crate) limit: Option<u32>,
+    pub(crate) offset: Option<u32>,
 }
 
 #[derive(Debug, Serialize, ToSchema)]
@@ -51,8 +50,8 @@ pub(crate) struct PostDto {
 #[derive(Debug, Serialize, ToSchema)]
 pub(crate) struct ListPostsResponseDto {
     pub(crate) posts: Vec<PostDto>,
-    pub(crate) page: u32,
-    pub(crate) page_size: u32,
+    pub(crate) limit: u32,
+    pub(crate) offset: u32,
     pub(crate) total: i64,
 }
 
@@ -71,10 +70,14 @@ impl From<Post> for PostDto {
 
 impl From<ListPostsResult> for ListPostsResponseDto {
     fn from(result: ListPostsResult) -> Self {
+        let offset = result
+            .page
+            .saturating_sub(1)
+            .saturating_mul(result.page_size);
         Self {
             posts: result.posts.into_iter().map(PostDto::from).collect(),
-            page: result.page,
-            page_size: result.page_size,
+            limit: result.page_size,
+            offset,
             total: result.total,
         }
     }
@@ -85,8 +88,8 @@ impl From<ListPostsResult> for ListPostsResponseDto {
     path = "/api/posts",
     tag = "posts",
     params(
-        ("page" = Option<u32>, Query, description = "Page number, starts from 1"),
-        ("page_size" = Option<u32>, Query, description = "Items per page (1..=100)")
+        ("limit" = Option<u32>, Query, description = "Items per page (1..=100)"),
+        ("offset" = Option<u32>, Query, description = "Offset from the beginning (>= 0)")
     ),
     responses(
         (status = 200, description = "Posts listed", body = ListPostsResponseDto),
@@ -99,8 +102,10 @@ pub(crate) async fn list_posts(
     Query(query): Query<PaginationQuery>,
 ) -> AppResult<(StatusCode, Json<ListPostsResponseDto>)> {
     query.validate()?;
-    let page = query.page.unwrap_or(1);
-    let page_size = query.page_size.unwrap_or(20);
+    let limit = query.limit.unwrap_or(20);
+    let offset = query.offset.unwrap_or(0);
+    let page = (offset / limit) + 1;
+    let page_size = limit;
 
     let result = state.blog_service.list_posts(page, page_size).await?;
 

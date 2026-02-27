@@ -7,9 +7,7 @@ use crate::state::AppState;
 use crate::storage;
 
 #[component]
-pub(crate) fn AuthPanel(
-    state: AppState,
-) -> impl IntoView {
+pub(crate) fn AuthPanel(state: AppState) -> impl IntoView {
     let reg_username = RwSignal::new(String::new());
     let reg_email = RwSignal::new(String::new());
     let reg_password = RwSignal::new(String::new());

@@ -260,13 +260,7 @@ impl BlogClient {
         }
     }
 
-    /// Возвращает список постов с пагинацией.
-    ///
-    /// `limit` и `offset` задаются в клиентских терминах. Для серверного API:
-    /// - `page = offset / limit + 1`
-    /// - `page_size = limit`
-    ///
-    /// При `limit == 0` используется `page = 1`, `page_size = 0`.
+    /// Возвращает список постов с пагинацией `limit/offset`.
     pub async fn list_posts(&self, limit: u32, offset: u32) -> BlogClientResult<ListPostsResponse> {
         match &self.transport {
             Transport::Http(_) => {

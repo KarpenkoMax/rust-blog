@@ -27,8 +27,8 @@ pub struct AuthResponse {
 #[derive(Debug, Clone, Deserialize)]
 pub struct ListPostsResponse {
     pub posts: Vec<Post>,
-    pub page: u32,
-    pub page_size: u32,
+    pub limit: u32,
+    pub offset: u32,
     pub total: i64,
 }
 

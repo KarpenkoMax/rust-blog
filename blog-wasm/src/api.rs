@@ -36,7 +36,9 @@ fn endpoint(path: &str) -> String {
     )
 }
 
-async fn parse_json<T: DeserializeOwned>(response: gloo_net::http::Response) -> Result<T, ApiError> {
+async fn parse_json<T: DeserializeOwned>(
+    response: gloo_net::http::Response,
+) -> Result<T, ApiError> {
     response
         .json::<T>()
         .await
@@ -60,12 +62,20 @@ async fn parse_error_body(response: gloo_net::http::Response) -> ApiError {
         _ => format!("HTTP ошибка {status}"),
     };
 
-    let message = if text.trim().is_empty() { fallback } else { text };
+    let message = if text.trim().is_empty() {
+        fallback
+    } else {
+        text
+    };
 
     ApiError::Http { status, message }
 }
 
-pub(crate) async fn register(username: &str, email: &str, password: &str) -> Result<AuthResponse, ApiError> {
+pub(crate) async fn register(
+    username: &str,
+    email: &str,
+    password: &str,
+) -> Result<AuthResponse, ApiError> {
     let payload = RegisterRequest {
         username: username.to_string(),
         email: email.to_string(),
@@ -107,9 +117,7 @@ pub(crate) async fn login(username: &str, password: &str) -> Result<AuthResponse
 }
 
 pub(crate) async fn list_posts(limit: u32, offset: u32) -> Result<ListPostsResponse, ApiError> {
-    let page_size = limit.max(1);
-    let page = (offset / page_size) + 1;
-    let url = endpoint(&format!("/api/posts?page={page}&page_size={page_size}"));
+    let url = endpoint(&format!("/api/posts?limit={limit}&offset={offset}"));
 
     let response = Request::get(&url)
         .send()

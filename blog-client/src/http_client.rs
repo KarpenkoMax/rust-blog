@@ -62,15 +62,15 @@ struct PostDto {
 #[derive(Debug, Deserialize)]
 struct ListPostsResponseDto {
     posts: Vec<PostDto>,
-    page: u32,
-    page_size: u32,
+    limit: u32,
+    offset: u32,
     total: i64,
 }
 
 #[derive(Serialize)]
 struct ListPostsQuery {
-    page: u32,
-    page_size: u32,
+    limit: u32,
+    offset: u32,
 }
 
 impl From<AuthResponseDto> for AuthResponse {
@@ -104,8 +104,8 @@ impl From<ListPostsResponseDto> for ListPostsResponse {
     fn from(value: ListPostsResponseDto) -> Self {
         Self {
             posts: value.posts.into_iter().map(Post::from).collect(),
-            limit: value.page_size,
-            offset: value.page.saturating_sub(1).saturating_mul(value.page_size),
+            limit: value.limit,
+            offset: value.offset,
             total: value.total.max(0) as u64,
         }
     }
@@ -293,22 +293,11 @@ impl HttpClient {
         Ok(())
     }
 
-    /// Возвращает список постов с клиентской пагинацией `limit/offset`.
-    ///
-    /// HTTP API сервера принимает пагинацию в виде `page/page_size`,
-    /// поэтому внутри выполняется преобразование:
-    /// - `page_size = max(limit, 1)`
-    /// - `page = (offset / page_size) + 1`
-    ///
-    /// Примеры:
-    /// - `limit=20, offset=0`  -> `page=1, page_size=20`
-    /// - `limit=20, offset=40` -> `page=3, page_size=20`
+    /// Возвращает список постов с пагинацией `limit/offset`.
     pub async fn list_posts(&self, limit: u32, offset: u32) -> BlogClientResult<ListPostsResponse> {
         let url = self.endpoint("/api/posts");
 
-        let page_size = limit.max(1);
-        let page = (offset / page_size) + 1;
-        let query = ListPostsQuery { page, page_size };
+        let query = ListPostsQuery { limit, offset };
 
         let request = self.client.request(Method::GET, url).query(&query);
 
@@ -341,11 +330,11 @@ mod tests {
     }
 
     #[test]
-    fn list_posts_response_maps_page_to_offset() {
+    fn list_posts_response_keeps_limit_and_offset() {
         let dto = ListPostsResponseDto {
             posts: vec![],
-            page: 3,
-            page_size: 20,
+            limit: 20,
+            offset: 40,
             total: 42,
         };
 
@@ -366,8 +355,8 @@ mod tests {
                 created_at: Utc.timestamp_opt(10, 0).single().expect("valid ts"),
                 updated_at: Utc.timestamp_opt(20, 0).single().expect("valid ts"),
             }],
-            page: 1,
-            page_size: 10,
+            limit: 10,
+            offset: 0,
             total: -7,
         };
 

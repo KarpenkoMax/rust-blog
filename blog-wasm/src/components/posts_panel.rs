@@ -6,7 +6,11 @@ use crate::api;
 use crate::models::Post;
 use crate::state::AppState;
 
-fn validate_non_empty_fields(title: &str, content: &str, error_message: &'static str) -> Result<(), &'static str> {
+fn validate_non_empty_fields(
+    title: &str,
+    content: &str,
+    error_message: &'static str,
+) -> Result<(), &'static str> {
     if title.trim().is_empty() || content.trim().is_empty() {
         return Err(error_message);
     }
@@ -21,10 +25,7 @@ fn find_post_for_edit(posts: &[Post], post_id: i64) -> Option<(String, String)> 
 }
 
 #[component]
-pub(crate) fn PostsPanel(
-    state: AppState,
-    on_refresh: Callback<()>,
-) -> impl IntoView {
+pub(crate) fn PostsPanel(state: AppState, on_refresh: Callback<()>) -> impl IntoView {
     let create_title = RwSignal::new(String::new());
     let create_content = RwSignal::new(String::new());
 
@@ -41,7 +42,9 @@ pub(crate) fn PostsPanel(
             let title = create_title.get().trim().to_string();
             let content = create_content.get().trim().to_string();
 
-            if let Err(message) = validate_non_empty_fields(&title, &content, "Заполните title и content") {
+            if let Err(message) =
+                validate_non_empty_fields(&title, &content, "Заполните title и content")
+            {
                 state.set_error(message);
                 return;
             }
@@ -83,7 +86,9 @@ pub(crate) fn PostsPanel(
             leptos::task::spawn_local(async move {
                 match api::delete_post(&token, post_id).await {
                     Ok(()) => {
-                        state2.posts.update(|posts| posts.retain(|p| p.id != post_id));
+                        state2
+                            .posts
+                            .update(|posts| posts.retain(|p| p.id != post_id));
                         state2.clear_error();
                     }
                     Err(err) => state2.set_error(err.to_string()),
@@ -127,9 +132,11 @@ pub(crate) fn PostsPanel(
             let title = edit_title.get().trim().to_string();
             let content = edit_content.get().trim().to_string();
 
-            if let Err(message) =
-                validate_non_empty_fields(&title, &content, "Заполните title и content для обновления")
-            {
+            if let Err(message) = validate_non_empty_fields(
+                &title,
+                &content,
+                "Заполните title и content для обновления",
+            ) {
                 state.set_error(message);
                 return;
             }
