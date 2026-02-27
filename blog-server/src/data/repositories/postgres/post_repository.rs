@@ -179,8 +179,9 @@ fn map_row_to_post(row: PostRow) -> Result<Post, DomainError> {
 
 fn map_post_db_error(err: sqlx::Error) -> DomainError {
     if let sqlx::Error::Database(db_err) = &err
-        && db_err.code().as_deref() == Some("23503") {
-            return DomainError::NotFound("author".to_string());
-        }
+        && db_err.code().as_deref() == Some("23503")
+    {
+        return DomainError::NotFound("author".to_string());
+    }
     DomainError::Unexpected(err.to_string())
 }
